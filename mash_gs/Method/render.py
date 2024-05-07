@@ -18,13 +18,13 @@ def renderTrainGS(output_folder_path, port=6007):
         return False
 
     cmd = (
-        "../gaussian-splatting/mash_gs/Lib/sibr_core/install/bin/SIBR_remoteGaussian_app"
+        "../sibr-core/install/bin/SIBR_remoteGaussian_app"
         + " --port "
         + str(port)
         + " --path "
         + output_folder_path
         + " --appPath "
-        + "../gaussian-splatting/mash_gs/Lib/sibr_core/install/bin/"
+        + "../sibr-core/install/bin/"
     )
 
     if not runCMD(cmd, True):
@@ -89,13 +89,13 @@ def renderGSResult(output_folder_path, iteration=None):
     print("\t data loaded from:", iteration_folder_path)
 
     cmd = (
-        "../gaussian-splatting/mash_gs/Lib/sibr_core/install/bin/SIBR_gaussianViewer_app"
+        "../sibr-core/install/bin/SIBR_gaussianViewer_app"
         + " --model-path "
         + output_folder_path
         + " --iteration "
         + str(iteration)
         + " --appPath "
-        + "../gaussian-splatting/mash_gs/Lib/sibr_core/install/bin/"
+        + "../sibr-core/install/bin/"
     )
 
     if not runCMD(cmd, True):

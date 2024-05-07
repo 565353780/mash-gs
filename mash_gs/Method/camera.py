@@ -63,6 +63,9 @@ def cameraList_from_camInfos(cam_infos, resolution_scale, args):
 
     for id, c in tqdm(enumerate(cam_infos), total=len(cam_infos)):
         camera_list.append(loadCam(args, id, c, resolution_scale))
+        #FIXME: remove this after code finish!
+        if id > 10:
+            break
 
     return camera_list
 
