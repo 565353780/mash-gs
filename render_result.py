@@ -14,10 +14,10 @@ data_folder_name_dict = {
 
 data_folder_name = data_folder_name_dict["2"].replace("/", "_")
 data_folder_name = getLatestFolderName(
-    data_folder_name, "../gaussian-splatting/output/"
+    data_folder_name, "../mash-gs/output/"
 )
 
-output_folder_path = "../gaussian-splatting/output/" + data_folder_name + "/"
+output_folder_path = "../mash-gs/output/" + data_folder_name + "/"
 iteration = None
 
 renderGSResult(output_folder_path, iteration)

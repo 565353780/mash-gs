@@ -2,6 +2,7 @@ import sys
 
 sys.path.append("../camera-manage/")
 sys.path.append("../colmap-manage/")
+sys.path.append("../ma-sh/")
 
 from colmap_manage.Module.colmap_manager import COLMAPManager
 from colmap_manage.Module.dataset_manager import DatasetManager
@@ -12,14 +13,13 @@ data_folder_name_dict = {
     "1": "NeRF/wine",
     "2": "NeRF/cup_1",
     "3": "UrbanScene3D/PolyTech_fine_zhang",
-    "4": "NeRF/jfguo-virtual-1-images",
-    "5": "NeRF/jfguo-real-1-images",
+    "4": "NeRF/oven-train",
 }
 
 data_folder_name = data_folder_name_dict["0"]
 video_file_path = "/home/chli/chLi/Dataset/NeRF/3vjia_person/3vjia_person.mp4"
 video_file_path = None
-down_sample_scale = 2
+down_sample_scale = 1
 resolution = 1
 
 scale = 1
@@ -35,7 +35,7 @@ dataset_folder_path = (
     "../colmap-manage/output/" + data_folder_name.replace("/", "_") + "/"
 )
 output_folder_path = (
-    "../gaussian-splatting/output/" + data_folder_name.replace("/", "_") + "/"
+    "../mash-gs/output/" + data_folder_name.replace("/", "_") + "/"
 )
 image_folder_name = "images"
 iterations = 400000

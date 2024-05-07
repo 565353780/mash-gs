@@ -1,6 +1,6 @@
 TRAIN_CONFIG = {
     "dataset_folder_path": "../colmap-manage/output/<folder-name>/gs/",
-    "output_folder_path": "../gaussian-splatting/output/<folder-name>/",
+    "output_folder_path": "../mash-gs/output/<folder-name>/",
     "start_checkpoint": None,
     "iterations": 400000,
     "resolution": 8,

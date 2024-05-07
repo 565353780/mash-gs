@@ -14,7 +14,8 @@ from mash_gs.Method.model import safe_state
 from mash_gs.Method.render import render
 from mash_gs.Method.time import getCurrentTime
 from mash_gs.Method.train import prepare_output_and_logger, training_report
-from mash_gs.Model.gaussians import GaussianModel
+#from mash_gs.Model.gaussians import GaussianModel
+from mash_gs.Model.mash_gs import MashGS as GaussianModel
 from tqdm import tqdm
 
 
@@ -227,7 +228,7 @@ class Trainer(object):
                     self.scene.save(iteration)
 
                 # Densification
-                if iteration < self.op.densify_until_iter:
+                if iteration < self.op.densify_until_iter and False:
                     # Keep track of max radii in image-space for pruning
                     self.gaussians.max_radii2D[visibility_filter] = torch.max(
                         self.gaussians.max_radii2D[visibility_filter],

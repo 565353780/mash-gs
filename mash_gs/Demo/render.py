@@ -2,7 +2,7 @@ from mash_gs.Method.render import renderTrainGS, renderGSResult
 
 
 def demo_train():
-    output_folder_path = "../gaussian-splatting/output/PolyTech_fine/"
+    output_folder_path = "../mash-gs/output/PolyTech_fine/"
     port = 6007
 
     renderTrainGS(output_folder_path, port)
@@ -10,7 +10,7 @@ def demo_train():
 
 
 def demo_result():
-    output_folder_path = "../gaussian-splatting/output/PolyTech_fine/"
+    output_folder_path = "../mash-gs/output/PolyTech_fine/"
     iteration = None
 
     renderGSResult(output_folder_path, iteration)
