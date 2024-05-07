@@ -1,4 +1,4 @@
-from gaussian_splatting.Config.color import (
+from mash_gs.Config.color import (
     C0, C1, C2, C3, C4
 )
 

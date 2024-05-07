@@ -6,8 +6,8 @@ from diff_gaussian_rasterization import (
     GaussianRasterizationSettings,
     GaussianRasterizer,
 )
-from gaussian_splatting.Method.cmd import runCMD
-from gaussian_splatting.Model.gaussians import GaussianModel
+from mash_gs.Method.cmd import runCMD
+from mash_gs.Model.gaussians import GaussianModel
 
 
 def renderTrainGS(output_folder_path, port=6007):
@@ -18,13 +18,13 @@ def renderTrainGS(output_folder_path, port=6007):
         return False
 
     cmd = (
-        "../gaussian-splatting/gaussian_splatting/Lib/sibr_core/install/bin/SIBR_remoteGaussian_app"
+        "../gaussian-splatting/mash_gs/Lib/sibr_core/install/bin/SIBR_remoteGaussian_app"
         + " --port "
         + str(port)
         + " --path "
         + output_folder_path
         + " --appPath "
-        + "../gaussian-splatting/gaussian_splatting/Lib/sibr_core/install/bin/"
+        + "../gaussian-splatting/mash_gs/Lib/sibr_core/install/bin/"
     )
 
     if not runCMD(cmd, True):
@@ -89,13 +89,13 @@ def renderGSResult(output_folder_path, iteration=None):
     print("\t data loaded from:", iteration_folder_path)
 
     cmd = (
-        "../gaussian-splatting/gaussian_splatting/Lib/sibr_core/install/bin/SIBR_gaussianViewer_app"
+        "../gaussian-splatting/mash_gs/Lib/sibr_core/install/bin/SIBR_gaussianViewer_app"
         + " --model-path "
         + output_folder_path
         + " --iteration "
         + str(iteration)
         + " --appPath "
-        + "../gaussian-splatting/gaussian_splatting/Lib/sibr_core/install/bin/"
+        + "../gaussian-splatting/mash_gs/Lib/sibr_core/install/bin/"
     )
 
     if not runCMD(cmd, True):

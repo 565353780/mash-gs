@@ -4,7 +4,7 @@ from tqdm import tqdm
 from camera_manage.Data.cameras import Camera
 from camera_manage.Method.colmap.transform import fov2focal
 
-from gaussian_splatting.Method.model import PILtoTorch
+from mash_gs.Method.model import PILtoTorch
 
 WARNED = False
 

@@ -1,20 +1,20 @@
 import os
 from random import randint
 
-import gaussian_splatting.Method.network as network_gui
+import mash_gs.Method.network as network_gui
 import torch
-from gaussian_splatting.Config.params import (
+from mash_gs.Config.params import (
     ModelParams,
     OptimizationParams,
 )
-from gaussian_splatting.Config.train import getTrainConfig
-from gaussian_splatting.Data.scene import Scene
-from gaussian_splatting.Loss.loss import l1_loss, ssim
-from gaussian_splatting.Method.model import safe_state
-from gaussian_splatting.Method.render import render
-from gaussian_splatting.Method.time import getCurrentTime
-from gaussian_splatting.Method.train import prepare_output_and_logger, training_report
-from gaussian_splatting.Model.gaussians import GaussianModel
+from mash_gs.Config.train import getTrainConfig
+from mash_gs.Data.scene import Scene
+from mash_gs.Loss.loss import l1_loss, ssim
+from mash_gs.Method.model import safe_state
+from mash_gs.Method.render import render
+from mash_gs.Method.time import getCurrentTime
+from mash_gs.Method.train import prepare_output_and_logger, training_report
+from mash_gs.Model.gaussians import GaussianModel
 from tqdm import tqdm
 
 

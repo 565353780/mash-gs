@@ -1,4 +1,4 @@
-from gaussian_splatting.Method.render import renderTrainGS, renderGSResult
+from mash_gs.Method.render import renderTrainGS, renderGSResult
 
 
 def demo_train():

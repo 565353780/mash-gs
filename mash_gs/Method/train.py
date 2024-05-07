@@ -4,8 +4,8 @@ import torch
 from argparse import Namespace
 from torch.utils.tensorboard import SummaryWriter
 
-from gaussian_splatting.Metric.image import psnr
-from gaussian_splatting.Data.scene import Scene
+from mash_gs.Metric.image import psnr
+from mash_gs.Data.scene import Scene
 
 
 def prepare_output_and_logger(args):

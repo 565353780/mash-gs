@@ -3,15 +3,15 @@ import os
 import numpy as np
 import torch
 from camera_manage.Config.cameras import BasicPointCloud
-from gaussian_splatting.Method.color import RGB2SH
-from gaussian_splatting.Method.model import (
+from mash_gs.Method.color import RGB2SH
+from mash_gs.Method.model import (
     build_rotation,
     build_scaling_rotation,
     get_expon_lr_func,
     inverse_sigmoid,
     strip_symmetric,
 )
-from gaussian_splatting.Method.path import mkdir_p
+from mash_gs.Method.path import mkdir_p
 from plyfile import PlyData, PlyElement
 from simple_knn._C import distCUDA2
 from torch import nn

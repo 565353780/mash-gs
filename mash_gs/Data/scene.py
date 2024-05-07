@@ -4,10 +4,10 @@ import random
 
 from camera_manage.Method.colmap.scene import readColmapSceneInfo
 
-from gaussian_splatting.Config.params import ModelParams
-from gaussian_splatting.Model.gaussians import GaussianModel
-from gaussian_splatting.Method.path import searchForMaxIteration
-from gaussian_splatting.Method.camera import cameraList_from_camInfos, camera_to_JSON
+from mash_gs.Config.params import ModelParams
+from mash_gs.Model.gaussians import GaussianModel
+from mash_gs.Method.path import searchForMaxIteration
+from mash_gs.Method.camera import cameraList_from_camInfos, camera_to_JSON
 
 
 class Scene(object):

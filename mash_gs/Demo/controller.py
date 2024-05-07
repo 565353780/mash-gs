@@ -3,7 +3,7 @@ import sys
 sys.path.append("../camera-manage/")
 sys.path.append("../udf-manage/")
 
-from gaussian_splatting.Module.controller import Controller
+from mash_gs.Module.controller import Controller
 
 
 def demo():
