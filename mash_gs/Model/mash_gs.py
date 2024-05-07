@@ -22,8 +22,8 @@ from simple_knn._C import distCUDA2
 
 class MashGS(GaussianModel):
     def __init__(self, sh_degree: int, anchor_num: int=40,
-        mask_degree_max: int = 1,
-        sh_degree_max: int = 1,
+        mask_degree_max: int = 3,
+        sh_degree_max: int = 2,
         mask_boundary_sample_num: int = 10,
         sample_polar_num: int = 1000,
         sample_point_scale: float = 0.8,
@@ -196,7 +196,8 @@ class MashGS(GaussianModel):
             distCUDA2(fused_point_cloud.float().cuda()),
             0.0000001,
         )
-        scales = torch.log(torch.sqrt(dist2))[..., None].repeat(1, 3)
+        #scales = torch.log(torch.sqrt(dist2))[..., None].repeat(1, 3)
+        scales = torch.log(torch.sqrt(dist2) * 10)[..., None].repeat(1, 3)
         rots = torch.zeros((fused_point_cloud.shape[0], 4), device="cuda")
         rots[:, 0] = 1
 

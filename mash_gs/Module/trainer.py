@@ -160,17 +160,17 @@ class Trainer(object):
         gt_image = viewpoint_cam.original_image.cuda()
         Ll1 = l1_loss(image, gt_image)
 
-        #cd_loss = self.gaussians.toChamferDistanceLoss()
+        cd_loss = self.gaussians.toChamferDistanceLoss()
         bc_loss = self.gaussians.toBoundaryConnectLoss()
 
         ssim_loss = 1.0 - ssim(image, gt_image)
 
-        loss = (1.0 - self.op.lambda_dssim) * Ll1 + self.op.lambda_dssim * ssim_loss + 1e-3 * bc_loss
+        loss = (1.0 - self.op.lambda_dssim) * Ll1 + self.op.lambda_dssim * ssim_loss + 1e-3 * cd_loss + 1e-3 * bc_loss
         loss.backward()
 
         self.logger.addScalar('Loss/L1', Ll1.item())
         self.logger.addScalar('Loss/SSIM', ssim_loss.item())
-        #self.logger.addScalar('Loss/ChamferDistance', cd_loss.item())
+        self.logger.addScalar('Loss/ChamferDistance', cd_loss.item())
         self.logger.addScalar('Loss/BoundaryConnect', bc_loss.item())
 
         return Ll1, loss, render_pkg
