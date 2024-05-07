@@ -107,25 +107,6 @@ function(sibr_gitlibrary)
     endif()
 
     if(args_GIT_REPOSITORY AND args_GIT_TAG)
-        if(EXISTS ${CMAKE_SOURCE_DIR}/extlibs/${args_ROOT_DIR}/${args_SOURCE_DIR}/.git)
-            git_describe(
-                PATH ${CMAKE_SOURCE_DIR}/extlibs/${args_ROOT_DIR}/${args_SOURCE_DIR}
-                GIT_URL SIBR_GITLIBRARY_URL
-                GIT_BRANCH SIBR_GITLIBRARY_BRANCH
-                GIT_COMMIT_HASH SIBR_GITLIBRARY_COMMIT_HASH
-                GIT_TAG SIBR_GITLIBRARY_TAG
-            )
-
-            if((SIBR_GITLIBRARY_URL STREQUAL args_GIT_REPOSITORY) AND
-                ((SIBR_GITLIBRARY_BRANCH STREQUAL args_GIT_TAG) OR
-                 (SIBR_GITLIBRARY_TAG STREQUAL args_GIT_TAG) OR
-                 (SIBR_GITLIBRARY_COMMIT_HASH STREQUAL args_GIT_TAG)))
-                message(STATUS "Library ${args_TARGET} already available, skipping.")
-                set(SIBR_GITLIBRARY_DECLARED ON)
-            else()
-                message(STATUS "Adding library ${args_TARGET} from git...")
-            endif()
-        endif()
 
         FetchContent_Declare(${args_TARGET}
             GIT_REPOSITORY 	${args_GIT_REPOSITORY}
@@ -137,17 +118,6 @@ function(sibr_gitlibrary)
         )
         FetchContent_GetProperties(${args_TARGET})
         string(TOLOWER "<name>" lcTargetName)
-
-        if((NOT SIBR_GITLIBRARY_DECLARED) AND (NOT ${lcTargetName}_POPULATED))
-            message(STATUS "Populating library ${args_TARGET}...")
-            FetchContent_Populate(${args_TARGET} QUIET
-                GIT_REPOSITORY 	${args_GIT_REPOSITORY}
-                GIT_TAG			${args_GIT_TAG}
-                SOURCE_DIR 		${CMAKE_SOURCE_DIR}/extlibs/${args_ROOT_DIR}/${args_SOURCE_DIR}
-                SUBBUILD_DIR    ${CMAKE_SOURCE_DIR}/extlibs/${args_ROOT_DIR}/subbuild
-                BINARY_DIR      ${CMAKE_SOURCE_DIR}/extlibs/${args_ROOT_DIR}/build
-            )
-        endif()
 
         add_subdirectory(${CMAKE_SOURCE_DIR}/extlibs/${args_ROOT_DIR}/${args_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/extlibs/${args_ROOT_DIR}/build)
 
