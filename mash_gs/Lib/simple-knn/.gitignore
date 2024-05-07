@@ -1,0 +1,5 @@
+# compiled
+build
+simple_knn.egg-info/
+simple_knn/
+dist/
