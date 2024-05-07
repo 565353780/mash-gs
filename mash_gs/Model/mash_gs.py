@@ -2,6 +2,8 @@ import torch
 import numpy as np
 from torch import nn
 
+import mash_cpp
+
 from ma_sh.Config.weights import W0
 from ma_sh.Config.constant import EPSILON
 from ma_sh.Model.mash import Mash
@@ -19,12 +21,12 @@ from simple_knn._C import distCUDA2
 
 
 class MashGS(GaussianModel):
-    def __init__(self, sh_degree: int, anchor_num: int=4000,
+    def __init__(self, sh_degree: int, anchor_num: int=40,
         mask_degree_max: int = 1,
         sh_degree_max: int = 1,
         mask_boundary_sample_num: int = 10,
         sample_polar_num: int = 1000,
-        sample_point_scale: float = 0.2,
+        sample_point_scale: float = 0.8,
         use_inv: bool = True,
         idx_dtype=torch.int64,
         dtype=torch.float32,
@@ -44,6 +46,10 @@ class MashGS(GaussianModel):
         self.inner_phis = torch.tensor([0.0], dtype=dtype).to(device)
         self.inner_theta_weights = inverse_sigmoid(torch.tensor([0.0], dtype=dtype).to(device))
         self.inner_idxs = torch.tensor([0.0], dtype=dtype).to(device)
+
+        self.gt_pts = torch.tensor([0.0], dtype=dtype).to(device)
+
+        self.surface_dist = 0.001
         return
 
     def capture(self):
@@ -110,21 +116,29 @@ class MashGS(GaussianModel):
         self.denom = denom
         self.optimizer.load_state_dict(opt_dict)
 
-    @property
-    def get_xyz(self):
+    def toBoundaryPoints(self) -> torch.Tensor:
         boundary_pts = self.mash.toWeightedSamplePoints(
             self.boundary_phis, self.boundary_theta_weights,
             self.boundary_idxs)
+        return boundary_pts
+
+    def toInnerPoints(self) -> torch.Tensor:
         inner_pts = self.mash.toWeightedSamplePoints(
             self.inner_phis, torch.sigmoid(self.inner_theta_weights),
             self.inner_idxs)
+        return inner_pts
+
+    @property
+    def get_xyz(self):
+        boundary_pts = self.toBoundaryPoints()
+        inner_pts = self.toInnerPoints()
         return torch.vstack([boundary_pts, inner_pts])
 
     def initMash(self, pts: np.ndarray) -> bool:
+        self.gt_pts = torch.from_numpy(pts).type(self.boundary_phis.dtype).to(self.boundary_phis.device).unsqueeze(0)
+
         gt_pcd = getPointCloud(pts)
         gt_pcd.estimate_normals()
-
-        surface_dist = 0.00001
 
         anchor_pcd = downSample(gt_pcd, self.mash.anchor_num)
 
@@ -137,11 +151,11 @@ class MashGS(GaussianModel):
         sample_normals = np.asarray(anchor_pcd.normals)
 
         sh_params = torch.ones_like(self.mash.sh_params) * EPSILON
-        sh_params[:, 0] = surface_dist / W0[0]
+        sh_params[:, 0] = self.surface_dist / W0[0]
 
         self.mash.loadParams(
             sh_params=sh_params,
-            positions=sample_pts + surface_dist * sample_normals,
+            positions=sample_pts + self.surface_dist * sample_normals,
             face_forward_vectors=-sample_normals,
         )
         return True
@@ -256,3 +270,16 @@ class MashGS(GaussianModel):
             max_steps=training_args.position_lr_max_steps,
         )
         return True
+
+    def toChamferDistanceLoss(self) -> torch.Tensor:
+        gs_pts = self.get_xyz.unsqueeze(0)
+        fit_loss, coverage_loss = mash_cpp.toChamferDistanceLoss(self.gt_pts, gs_pts)
+        cd_loss = fit_loss + coverage_loss
+        return cd_loss
+
+    def toBoundaryConnectLoss(self) -> torch.Tensor:
+        boundary_pts = self.toBoundaryPoints()
+        boundary_connect_loss = mash_cpp.toBoundaryConnectLoss(self.mash.anchor_num,
+                                                               boundary_pts,
+                                                               self.boundary_idxs)
+        return boundary_connect_loss

@@ -16,6 +16,7 @@ from mash_gs.Method.time import getCurrentTime
 from mash_gs.Method.train import prepare_output_and_logger, training_report
 #from mash_gs.Model.gaussians import GaussianModel
 from mash_gs.Model.mash_gs import MashGS as GaussianModel
+from mash_gs.Module.logger import Logger
 from tqdm import tqdm
 
 
@@ -29,7 +30,11 @@ class Trainer(object):
         port=None,
         percent_dense=None,
     ):
-        train_config = getTrainConfig(folder_name, getCurrentTime())
+        current_time = getCurrentTime()
+        train_config = getTrainConfig(folder_name, current_time)
+        log_folder_path = './logs/' + current_time + '/'
+        os.makedirs(log_folder_path, exist_ok=True)
+        self.logger = Logger(log_folder_path)
 
         self.source_path = train_config["dataset_folder_path"]
         self.model_path = train_config["output_folder_path"]
@@ -154,10 +159,20 @@ class Trainer(object):
         # Loss
         gt_image = viewpoint_cam.original_image.cuda()
         Ll1 = l1_loss(image, gt_image)
-        loss = (1.0 - self.op.lambda_dssim) * Ll1 + self.op.lambda_dssim * (
-            1.0 - ssim(image, gt_image)
-        )
+
+        #cd_loss = self.gaussians.toChamferDistanceLoss()
+        bc_loss = self.gaussians.toBoundaryConnectLoss()
+
+        ssim_loss = 1.0 - ssim(image, gt_image)
+
+        loss = (1.0 - self.op.lambda_dssim) * Ll1 + self.op.lambda_dssim * ssim_loss + 1e-3 * bc_loss
         loss.backward()
+
+        self.logger.addScalar('Loss/L1', Ll1.item())
+        self.logger.addScalar('Loss/SSIM', ssim_loss.item())
+        #self.logger.addScalar('Loss/ChamferDistance', cd_loss.item())
+        self.logger.addScalar('Loss/BoundaryConnect', bc_loss.item())
+
         return Ll1, loss, render_pkg
 
     def train(self):

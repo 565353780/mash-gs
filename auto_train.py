@@ -14,9 +14,11 @@ data_folder_name_dict = {
     "2": "NeRF/cup_1",
     "3": "UrbanScene3D/PolyTech_fine_zhang",
     "4": "NeRF/oven-train",
+    "5": "NeRF/real_fridge-train",
+    "6": "NeRF/real_fridge_raw-train",
 }
 
-data_folder_name = data_folder_name_dict["0"]
+data_folder_name = data_folder_name_dict["5"]
 video_file_path = "/home/chli/chLi/Dataset/NeRF/3vjia_person/3vjia_person.mp4"
 video_file_path = None
 down_sample_scale = 1

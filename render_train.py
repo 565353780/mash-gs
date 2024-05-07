@@ -11,9 +11,10 @@ data_folder_name_dict = {
     "2": "NeRF/cup_1",
     "3": "UrbanScene3D/PolyTech_fine_zhang",
     "4": "NeRF/oven-train",
+    "5": "NeRF/real_fridge-train",
 }
 
-data_folder_name = data_folder_name_dict["0"].replace("/", "_")
+data_folder_name = data_folder_name_dict["5"].replace("/", "_")
 data_folder_name = getLatestFolderName(
     data_folder_name, "../mash-gs/output/"
 )
