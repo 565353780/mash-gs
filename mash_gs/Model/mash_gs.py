@@ -1,6 +1,8 @@
+import os
 import torch
 import numpy as np
 from torch import nn
+from plyfile import PlyData, PlyElement
 
 import mash_cpp
 
@@ -10,6 +12,7 @@ from ma_sh.Model.mash import Mash
 from ma_sh.Method.pcd import getPointCloud, downSample
 from camera_manage.Config.cameras import BasicPointCloud
 
+from mash_gs.Method.path import mkdir_p
 from mash_gs.Method.model import (
     get_expon_lr_func,
     inverse_sigmoid,
@@ -284,3 +287,46 @@ class MashGS(GaussianModel):
                                                                boundary_pts,
                                                                self.boundary_idxs)
         return boundary_connect_loss
+
+    def save_ply(self, path):
+        mkdir_p(os.path.dirname(path))
+
+        xyz = self.get_xyz.detach().cpu().numpy()
+        normals = np.zeros_like(xyz)
+        f_dc = (
+            self._features_dc.detach()
+            .transpose(1, 2)
+            .flatten(start_dim=1)
+            .contiguous()
+            .cpu()
+            .numpy()
+        )
+        f_rest = (
+            self._features_rest.detach()
+            .transpose(1, 2)
+            .flatten(start_dim=1)
+            .contiguous()
+            .cpu()
+            .numpy()
+        )
+        opacities = self._opacity.detach().cpu().numpy()
+        scale = self._scaling.detach().cpu().numpy()
+        rotation = self._rotation.detach().cpu().numpy()
+
+        dtype_full = [
+            (attribute, "f4") for attribute in self.construct_list_of_attributes()
+        ]
+
+        elements = np.empty(xyz.shape[0], dtype=dtype_full)
+        attributes = np.concatenate(
+            (xyz, normals, f_dc, f_rest, opacities, scale, rotation), axis=1
+        )
+        elements[:] = list(map(tuple, attributes))
+        el = PlyElement.describe(elements, "vertex")
+        PlyData([el]).write(path)
+
+        mash_path = path.replace('.ply', '.npy')
+        print('save mash as :', mash_path)
+
+        self.mash.saveParamsFile(mash_path, True)
+        return True
