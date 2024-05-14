@@ -24,10 +24,10 @@ from simple_knn._C import distCUDA2
 
 
 class MashGS(GaussianModel):
-    def __init__(self, sh_degree: int, anchor_num: int=40,
+    def __init__(self, sh_degree: int, anchor_num: int=400,
         mask_degree_max: int = 3,
         sh_degree_max: int = 2,
-        mask_boundary_sample_num: int = 10,
+        mask_boundary_sample_num: int = 90,
         sample_polar_num: int = 1000,
         sample_point_scale: float = 0.8,
         use_inv: bool = True,
@@ -52,7 +52,7 @@ class MashGS(GaussianModel):
 
         self.gt_pts = torch.tensor([0.0], dtype=dtype).to(device)
 
-        self.surface_dist = 0.001
+        self.surface_dist = 0.01
         return
 
     def capture(self):

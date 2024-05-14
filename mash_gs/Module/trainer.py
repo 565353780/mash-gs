@@ -165,7 +165,7 @@ class Trainer(object):
 
         ssim_loss = 1.0 - ssim(image, gt_image)
 
-        loss = (1.0 - self.op.lambda_dssim) * Ll1 + self.op.lambda_dssim * ssim_loss + 1e-3 * cd_loss + 1e-3 * bc_loss
+        loss = (1.0 - self.op.lambda_dssim) * Ll1 + self.op.lambda_dssim * ssim_loss + 1e-1 * cd_loss + 1e-1 * bc_loss
         loss.backward()
 
         self.logger.addScalar('Loss/L1', Ll1.item())

@@ -16,9 +16,10 @@ data_folder_name_dict = {
     "4": "NeRF/oven-train",
     "5": "NeRF/real_fridge-train",
     "6": "NeRF/real_fridge_raw-train",
+    "7": "NeRF/hotdog_train",
 }
 
-data_folder_name = data_folder_name_dict["5"]
+data_folder_name = data_folder_name_dict["7"]
 video_file_path = "/home/chli/chLi/Dataset/NeRF/3vjia_person/3vjia_person.mp4"
 video_file_path = None
 down_sample_scale = 1
