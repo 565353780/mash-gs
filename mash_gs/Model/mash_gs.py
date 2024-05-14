@@ -1,6 +1,7 @@
 import os
 import torch
 import numpy as np
+import open3d as o3d
 from torch import nn
 from plyfile import PlyData, PlyElement
 
@@ -24,10 +25,10 @@ from simple_knn._C import distCUDA2
 
 
 class MashGS(GaussianModel):
-    def __init__(self, sh_degree: int, anchor_num: int=200,
+    def __init__(self, sh_degree: int, surface_pcd_file_path: str, anchor_num: int=400,
         mask_degree_max: int = 3,
         sh_degree_max: int = 2,
-        mask_boundary_sample_num: int = 36,
+        mask_boundary_sample_num: int = 90,
         sample_polar_num: int = 1000,
         sample_point_scale: float = 0.8,
         use_inv: bool = True,
@@ -54,6 +55,9 @@ class MashGS(GaussianModel):
 
         self.surface_dist = 0.01
         self.init_scale = 2
+
+        surface_points = np.asarray(o3d.io.read_point_cloud(surface_pcd_file_path).points)
+        self.initMash(surface_points)
         return
 
     def capture(self):
@@ -181,9 +185,8 @@ class MashGS(GaussianModel):
     def create_from_pcd(self, pcd: BasicPointCloud, spatial_lr_scale: float):
         self.spatial_lr_scale = spatial_lr_scale
 
-        pts = np.asarray(pcd.points)
-
-        self.initMash(pts)
+        # pts = np.asarray(pcd.points)
+        # self.initMash(pts)
         self.initGSParams()
 
         fused_point_cloud = self.get_xyz

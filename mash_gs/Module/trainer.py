@@ -1,5 +1,6 @@
 import os
 from random import randint
+from typing import Union
 
 import mash_gs.Method.network as network_gui
 import torch
@@ -29,6 +30,7 @@ class Trainer(object):
         iterations=None,
         port=None,
         percent_dense=None,
+        surface_pcd_file_path: Union[str, None] = None,
     ):
         current_time = getCurrentTime()
         train_config = getTrainConfig(folder_name, current_time)
@@ -78,7 +80,7 @@ class Trainer(object):
         self.op.iterations = self.iterations
 
         # Model
-        self.gaussians = GaussianModel(self.lp.sh_degree)
+        self.gaussians = GaussianModel(self.lp.sh_degree, surface_pcd_file_path)
         self.first_iter = 0
         self.scene = Scene(self.lp, self.gaussians)
         self.gaussians.training_setup(self.op)
