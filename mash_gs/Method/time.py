@@ -33,12 +33,16 @@ def getLatestFolderName(base_folder_name, folder_root_path):
             max_folder_m = folder_m
             max_folder_s = folder_s
             continue
+        elif int(folder_date) < int(max_folder_date):
+            continue
 
         if int(folder_h) > int(max_folder_h):
             max_folder_date = folder_date
             max_folder_h = folder_h
             max_folder_m = folder_m
             max_folder_s = folder_s
+            continue
+        elif int(folder_h) < int(max_folder_h):
             continue
 
         if int(folder_m) > int(max_folder_m):
@@ -47,12 +51,16 @@ def getLatestFolderName(base_folder_name, folder_root_path):
             max_folder_m = folder_m
             max_folder_s = folder_s
             continue
+        elif int(folder_m) < int(max_folder_m):
+            continue
 
         if int(folder_s) > int(max_folder_s):
             max_folder_date = folder_date
             max_folder_h = folder_h
             max_folder_m = folder_m
             max_folder_s = folder_s
+            continue
+        elif int(folder_s) < int(max_folder_s):
             continue
 
     latest_folder_name = (

@@ -45,7 +45,8 @@ class Trainer(object):
         self.port = train_config["port"]
 
         self.detect_anomaly = train_config["detect_anomaly"]
-        self.save_iterations = [i * 2500 for i in range(int(self.iterations / 2500))]
+        save_freq = 500
+        self.save_iterations = [i * save_freq for i in range(int(self.iterations / save_freq))]
         if self.iterations not in self.save_iterations:
             self.save_iterations.append(self.iterations)
         self.test_iterations = self.save_iterations
@@ -160,16 +161,22 @@ class Trainer(object):
         gt_image = viewpoint_cam.original_image.cuda()
         Ll1 = l1_loss(image, gt_image)
 
+        bo_loss = self.gaussians.toBiggerOpacityLoss()
         cd_loss = self.gaussians.toChamferDistanceLoss()
         bc_loss = self.gaussians.toBoundaryConnectLoss()
 
         ssim_loss = 1.0 - ssim(image, gt_image)
 
-        loss = (1.0 - self.op.lambda_dssim) * Ll1 + self.op.lambda_dssim * ssim_loss + 1e-1 * cd_loss + 1e-1 * bc_loss
+        loss = (1.0 - self.op.lambda_dssim) * Ll1 + \
+            self.op.lambda_dssim * ssim_loss + \
+            bo_loss + \
+            1e-1 * cd_loss + \
+            1e-1 * bc_loss
         loss.backward()
 
         self.logger.addScalar('Loss/L1', Ll1.item())
         self.logger.addScalar('Loss/SSIM', ssim_loss.item())
+        self.logger.addScalar('Loss/BiggerOpacity', bo_loss.item())
         self.logger.addScalar('Loss/ChamferDistance', cd_loss.item())
         self.logger.addScalar('Loss/BoundaryConnect', bc_loss.item())
 

@@ -24,10 +24,10 @@ from simple_knn._C import distCUDA2
 
 
 class MashGS(GaussianModel):
-    def __init__(self, sh_degree: int, anchor_num: int=400,
+    def __init__(self, sh_degree: int, anchor_num: int=200,
         mask_degree_max: int = 3,
         sh_degree_max: int = 2,
-        mask_boundary_sample_num: int = 90,
+        mask_boundary_sample_num: int = 36,
         sample_polar_num: int = 1000,
         sample_point_scale: float = 0.8,
         use_inv: bool = True,
@@ -53,6 +53,7 @@ class MashGS(GaussianModel):
         self.gt_pts = torch.tensor([0.0], dtype=dtype).to(device)
 
         self.surface_dist = 0.01
+        self.init_scale = 2
         return
 
     def capture(self):
@@ -199,8 +200,7 @@ class MashGS(GaussianModel):
             distCUDA2(fused_point_cloud.float().cuda()),
             0.0000001,
         )
-        #scales = torch.log(torch.sqrt(dist2))[..., None].repeat(1, 3)
-        scales = torch.log(torch.sqrt(dist2) * 10)[..., None].repeat(1, 3)
+        scales = torch.log(torch.sqrt(dist2) * self.init_scale)[..., None].repeat(1, 3)
         rots = torch.zeros((fused_point_cloud.shape[0], 4), device="cuda")
         rots[:, 0] = 1
 
@@ -274,6 +274,11 @@ class MashGS(GaussianModel):
             max_steps=training_args.position_lr_max_steps,
         )
         return True
+
+    def toBiggerOpacityLoss(self) -> torch.Tensor:
+        opacity = self.get_opacity
+        bigger_opacity_loss = nn.L1Loss()(opacity, torch.ones_like(opacity))
+        return bigger_opacity_loss
 
     def toChamferDistanceLoss(self) -> torch.Tensor:
         gs_pts = self.get_xyz.unsqueeze(0)
