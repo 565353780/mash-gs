@@ -3,6 +3,7 @@ import torch
 import numpy as np
 import open3d as o3d
 from torch import nn
+from typing import Union
 from plyfile import PlyData, PlyElement
 
 import mash_cpp
@@ -25,7 +26,7 @@ from simple_knn._C import distCUDA2
 
 
 class MashGS(GaussianModel):
-    def __init__(self, sh_degree: int, surface_pcd_file_path: str, anchor_num: int=400,
+    def __init__(self, sh_degree: int, surface_pcd_file_path: str, mash_file_path: str, anchor_num: int=400,
         mask_degree_max: int = 3,
         sh_degree_max: int = 2,
         mask_boundary_sample_num: int = 90,
@@ -39,6 +40,7 @@ class MashGS(GaussianModel):
 
         self.mash = Mash(anchor_num, mask_degree_max, sh_degree_max, mask_boundary_sample_num,
                          sample_polar_num, sample_point_scale, use_inv, idx_dtype, dtype, device)
+        self.mash.loadParamsFile(mash_file_path)
         self.mash.setGradState(True)
 
         # fixed gs position on boundary
@@ -56,8 +58,7 @@ class MashGS(GaussianModel):
         self.surface_dist = 0.01
         self.init_scale = 2
 
-        surface_points = np.asarray(o3d.io.read_point_cloud(surface_pcd_file_path).points)
-        self.initMash(surface_points)
+        self.initMash(surface_pcd_file_path, mash_file_path)
         return
 
     def capture(self):
@@ -142,10 +143,16 @@ class MashGS(GaussianModel):
         inner_pts = self.toInnerPoints()
         return torch.vstack([boundary_pts, inner_pts])
 
-    def initMash(self, pts: np.ndarray) -> bool:
-        self.gt_pts = torch.from_numpy(pts).type(self.boundary_phis.dtype).to(self.boundary_phis.device).unsqueeze(0)
+    def initMash(self, surface_pcd_file_path: str, mash_file_path: Union[str, None] = None) -> bool:
+        surface_points = np.asarray(o3d.io.read_point_cloud(surface_pcd_file_path).points)
 
-        gt_pcd = getPointCloud(pts)
+        self.gt_pts = torch.from_numpy(surface_points).type(self.boundary_phis.dtype).to(self.boundary_phis.device).unsqueeze(0)
+
+        if mash_file_path is not None:
+            self.mash.loadParamsFile(mash_file_path)
+            return True
+
+        gt_pcd = getPointCloud(surface_points)
         gt_pcd.estimate_normals()
 
         anchor_pcd = downSample(gt_pcd, self.mash.anchor_num)
@@ -185,8 +192,6 @@ class MashGS(GaussianModel):
     def create_from_pcd(self, pcd: BasicPointCloud, spatial_lr_scale: float):
         self.spatial_lr_scale = spatial_lr_scale
 
-        # pts = np.asarray(pcd.points)
-        # self.initMash(pts)
         self.initGSParams()
 
         fused_point_cloud = self.get_xyz
@@ -282,6 +287,11 @@ class MashGS(GaussianModel):
         opacity = self.get_opacity
         bigger_opacity_loss = nn.L1Loss()(opacity, torch.ones_like(opacity))
         return bigger_opacity_loss
+
+    def toSmallerScalingLoss(self) -> torch.Tensor:
+        scaling = self.get_scaling
+        smaller_scaling_loss = nn.L1Loss()(scaling, torch.zeros_like(scaling))
+        return smaller_scaling_loss
 
     def toChamferDistanceLoss(self) -> torch.Tensor:
         gs_pts = self.get_xyz.unsqueeze(0)

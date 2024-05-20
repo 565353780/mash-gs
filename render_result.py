@@ -5,6 +5,8 @@ sys.path.append("../camera-manage/")
 from mash_gs.Method.render import renderGSResult
 from mash_gs.Method.time import getLatestFolderName
 
+nerf_list = ['chair', 'hotdog', 'mic', 'ship']
+nerf = nerf_list[2]
 data_folder_name_dict = {
     "0": "NeRF/3vjia_simple",
     "1": "NeRF/wine",
@@ -13,7 +15,7 @@ data_folder_name_dict = {
     "4": "NeRF/oven-train",
     "5": "NeRF/real_fridge-train",
     "6": "NeRF/real_fridge_raw-train",
-    "7": "NeRF/hotdog_train",
+    "7": "NeRF/" + nerf + "_train",
 }
 
 data_folder_name = data_folder_name_dict["7"].replace("/", "_")

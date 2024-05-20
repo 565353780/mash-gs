@@ -31,6 +31,7 @@ class Trainer(object):
         port=None,
         percent_dense=None,
         surface_pcd_file_path: Union[str, None] = None,
+        mash_file_path: Union[str, None] = None,
     ):
         current_time = getCurrentTime()
         train_config = getTrainConfig(folder_name, current_time)
@@ -52,7 +53,8 @@ class Trainer(object):
         if self.iterations not in self.save_iterations:
             self.save_iterations.append(self.iterations)
         self.test_iterations = self.save_iterations
-        self.checkpoint_iterations = train_config["checkpoint_iterations"]
+        # self.checkpoint_iterations = train_config["checkpoint_iterations"]
+        self.checkpoint_iterations = self.save_iterations
         self.quiet = train_config["quiet"]
         self.start_checkpoint = train_config["start_checkpoint"]
 
@@ -80,7 +82,7 @@ class Trainer(object):
         self.op.iterations = self.iterations
 
         # Model
-        self.gaussians = GaussianModel(self.lp.sh_degree, surface_pcd_file_path)
+        self.gaussians = GaussianModel(self.lp.sh_degree, surface_pcd_file_path, mash_file_path)
         self.first_iter = 0
         self.scene = Scene(self.lp, self.gaussians)
         self.gaussians.training_setup(self.op)
@@ -164,6 +166,7 @@ class Trainer(object):
         Ll1 = l1_loss(image, gt_image)
 
         bo_loss = self.gaussians.toBiggerOpacityLoss()
+        ss_loss = self.gaussians.toSmallerScalingLoss()
         cd_loss = self.gaussians.toChamferDistanceLoss()
         bc_loss = self.gaussians.toBoundaryConnectLoss()
 
@@ -172,6 +175,7 @@ class Trainer(object):
         loss = (1.0 - self.op.lambda_dssim) * Ll1 + \
             self.op.lambda_dssim * ssim_loss + \
             bo_loss + \
+            ss_loss + \
             1e-1 * cd_loss + \
             1e-1 * bc_loss
         loss.backward()
@@ -179,6 +183,7 @@ class Trainer(object):
         self.logger.addScalar('Loss/L1', Ll1.item())
         self.logger.addScalar('Loss/SSIM', ssim_loss.item())
         self.logger.addScalar('Loss/BiggerOpacity', bo_loss.item())
+        self.logger.addScalar('Loss/SmallerScaling', ss_loss.item())
         self.logger.addScalar('Loss/ChamferDistance', cd_loss.item())
         self.logger.addScalar('Loss/BoundaryConnect', bc_loss.item())
 

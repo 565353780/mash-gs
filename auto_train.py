@@ -8,6 +8,8 @@ from colmap_manage.Module.colmap_manager import COLMAPManager
 from colmap_manage.Module.dataset_manager import DatasetManager
 from mash_gs.Module.trainer import Trainer
 
+nerf_list = ['chair', 'hotdog', 'mic', 'ship']
+nerf = nerf_list[2]
 data_folder_name_dict = {
     "0": "NeRF/3vjia_simple",
     "1": "NeRF/wine",
@@ -16,7 +18,7 @@ data_folder_name_dict = {
     "4": "NeRF/oven-train",
     "5": "NeRF/real_fridge-train",
     "6": "NeRF/real_fridge_raw-train",
-    "7": "NeRF/hotdog_train",
+    "7": "NeRF/" + nerf + "_train",
 }
 
 data_folder_name = data_folder_name_dict["7"]
@@ -45,7 +47,9 @@ iterations = 400000
 port = 6007
 percentent_dense = 0.01
 
-surface_pcd_file_path = data_folder_path + 'dense/result.ply'
+#surface_pcd_file_path = data_folder_path + 'dense/result.ply'
+surface_pcd_file_path = '../mvs-former/output/hotdog_train/hotdog_train.ply'
+mash_file_path = '../ma-sh/output/20240520_03:54:46/mash/648_final.npy'
 
 COLMAPManager(
     data_folder_path, video_file_path, down_sample_scale, print_progress=False
@@ -62,4 +66,5 @@ Trainer(
     port,
     percentent_dense,
     surface_pcd_file_path,
+    mash_file_path,
 ).train()
